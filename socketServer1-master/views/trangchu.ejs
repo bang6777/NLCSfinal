@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Điều Khiển Máy Che</title>
+    <script src="jquery.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+    <style >
+      button:hover{
+        cursor:pointer;
+      }
+      .turn-on button{
+        background-color: blue;
+        display: block;
+        margin: 0 auto;
+        padding: 8px;
+      }
+
+      .turn-off button{
+        background-color: yellow;
+        display: block;
+        margin: 0 auto;
+        padding: 8px;
+      }
+      .stop button{
+        background-color: red;
+        display: block;
+        margin: 0 auto;
+        padding: 8px 16px;
+      }
+      /* .spaceTopOff{
+        padding-top: 0%;
+      }
+      .spaceTopOn{
+        padding-top: 0%;
+      } */
+      body{
+        background-color: #04FCF3;
+      }
+      .chart{
+        margin: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <label>chi so mua</label> <input id="rainValue" type="text" name="chi so mua">
+    <label> chat </label>  <input id="chat" type="text" name="chatting"> <br>
+     <label> noidung</label> <input id="noidung" type="textarea" name="hienthi" width="40px" height="50px"><br>
+     <div class="chart" style="width:400px;">
+       <canvas id="myChart" height="400" width="400"></canvas>
+     </div>
+    <p class="spaceTopOn"></p>
+    <div class="turn-on">
+      <button id="turn-on" value="turnOn">Turn on</button>
+    </div>
+    <p class="spaceTopOff"></p>
+    <div class="turn-off">
+      <button id="turn-off" value="turnOf">Turn off</button>
+    </div>
+    <p id="test" ></p>
+    <div class="stop">
+      <button id="stop" value="stop">Stop</button>
+    </div>
+
+    <script>
+      var socket = io.connect("http://<%=hostname%>:<%=port%>");
+
+      // socket.on("Server-send-turnOff",function(data){
+      //   $("#noidung").val(data+", ");
+      // });
+
+      socket.on("Server-send-valueRain",function(data){
+        $("#rainValue").val(data);
+      });
+        // socket.on("event",function(data){
+        //   $("#chat").val(data);
+        // });
+      socket.on("Arduino-send",function(data){
+        $("#noidung").val(data);
+      });
+
+      $(document).ready(function(){
+        $("#turn-on").click(function(){
+          socket.emit("Client-send-turnOn",$("#turn-on").val());
+        });
+      });
+      $(document).ready(function(){
+        $("#turn-off").click(function(){
+          socket.emit("Client-send-turnOff",$("#turn-off").val());
+        });
+      });
+      $(document).ready(function(){
+        $("#stop").click(function(){
+          socket.emit("Client-send-stop",$("#stop").val());
+        });
+      });
+
+      // --------------------><-------------
+      //  code chart
+      var ctx = document.getElementById('myChart').getContext('2d');
+var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+
+    // The data for our dataset
+    data: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+        datasets: [{
+            label: 'Rain Value',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [10 , 10, 5, 2, 20, 30, 45]
+        }]
+    },
+
+    // Configuration options go here
+    options: {
+      responsive: true,
+                legend: {
+                    position: 'bottom',
+                },
+                hover: {
+                    mode: 'label'
+                },
+                scales: {
+                    xAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                // labelString: 'Month'
+                            }
+                        }],
+                    yAxes: [{
+                            display: true,
+                            ticks: {
+                                beginAtZero: true,
+                                steps: 200,
+                                stepValue: 5,
+                                max: 1400
+                            }
+                        }]
+                },
+                title: {
+                    display: true,
+                    text: 'Chart.js Line Chart - Legend'
+                }
+    }
+});
+    </script>
+
+
+
+  </body>
+</html>
